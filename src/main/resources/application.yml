@@ -1,0 +1,19 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+
+  datasource:
+    url: "jdbc:mysql://localhost:3306/smarthospital"
+    username: "root"
+    password: "test1234"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
