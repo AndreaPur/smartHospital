@@ -32,7 +32,7 @@ public class MedicoController {
     }
 
     @GetMapping("/all")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
     public ResponseEntity<List<MedicoResponse>> getAllMedici() {
         List<MedicoResponse> medici = medicoService.getAllMedici();
         return new ResponseEntity<>(medici, HttpStatus.OK);

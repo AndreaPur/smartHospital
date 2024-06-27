@@ -38,7 +38,7 @@ public class PrestazioneController {
     }
 
     @PostMapping("/create")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> createPrestazione(@RequestBody PrestazioneRequest request) {
         try {
             PrestazioneResponse prestazione = prestazioneService.createPrestazione(request);
@@ -49,7 +49,7 @@ public class PrestazioneController {
     }
 
     @PutMapping("/update/{id}")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> updatePrestazione(@PathVariable Long id, @RequestBody PrestazioneRequest updatedRequest) {
         try {
             PrestazioneResponse prestazione = prestazioneService.updatePrestazione(id, updatedRequest);
@@ -62,7 +62,7 @@ public class PrestazioneController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> deletePrestazione(@PathVariable Long id) {
         try {
             prestazioneService.deletePrestazioneById(id);

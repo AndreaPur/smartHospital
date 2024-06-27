@@ -124,6 +124,13 @@ public class VisitaService {
         return new GenericResponse(message);
     }
 
+    public List<VisitaResponse> getVisiteByUtenteId(Long utenteId) throws EntityNotFoundException {
+        Utente utente = utenteRepository.findById(utenteId)
+                .orElseThrow(() -> new EntityNotFoundException(utenteId, "Utente"));
+        List<Visita> visite = visitaRepository.findByUtenteId(utenteId);
+        return visite.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
     public void uploadReferto(Long id, String path) throws EntityNotFoundException {
         Visita visita = visitaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id, "Visita"));

@@ -39,7 +39,7 @@ public class PrenotazioneController {
     }
 
     @PostMapping("/create")
-    @Secured({"ADMIN", "PAZIENTE"})
+    @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
     public ResponseEntity<?> createPrenotazione(@RequestBody PrenotazioneRequest request) {
         try {
             PrenotazioneResponse prenotazione = prenotazioneService.createPrenotazione(request);

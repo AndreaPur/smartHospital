@@ -85,6 +85,7 @@ public class VisitaController {
     }
 
     @PostMapping("/{visitaId}/prestazioni/{prestazioneId}")
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> aggiungiPrestazione(@PathVariable Long visitaId, @PathVariable Long prestazioneId) throws EntityNotFoundException, VisitaConclusaException {
         try {
             visitaService.aggiungiPrestazione(visitaId, prestazioneId);
@@ -99,6 +100,7 @@ public class VisitaController {
     }
 
     @PostMapping("/{visitaId}/concludi")
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> concludiVisita(@PathVariable Long visitaId) {
         try {
             GenericResponse response = visitaService.concludeVisita(visitaId);
@@ -111,6 +113,7 @@ public class VisitaController {
     }
 
     @PutMapping("/upload_referto/{id}")
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<GenericResponse> uploadReferto(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException, EntityNotFoundException {
         Path tempFile = Files.createTempFile(null, null);
         Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
@@ -140,6 +143,7 @@ public class VisitaController {
     }
 
     @GetMapping("/download_referto/{id}")
+    @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
     public ResponseEntity<GenericResponse> downloadReferto(@PathVariable Long id, HttpServletResponse response) throws IOException, EntityNotFoundException {
         String pathFile = visitaService.getPath(id);
         Path filePath = Path.of(pathFile);

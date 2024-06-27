@@ -20,7 +20,7 @@ public class TariffarioController {
     private TariffarioService tariffarioService;
 
     @GetMapping("/get/{id}")
-    @Secured({"ADMIN", "MEDICO"})
+    @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
     public ResponseEntity<?> getTariffarioById(@PathVariable Long id) {
         try {
             TariffarioResponse tariffario = tariffarioService.getTariffarioById(id);
@@ -38,7 +38,7 @@ public class TariffarioController {
     }
 
     @PostMapping("/create")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> createTariffario(@RequestBody TariffarioRequest request) {
         try {
             TariffarioResponse tariffario = tariffarioService.createTariffario(request);
@@ -51,20 +51,20 @@ public class TariffarioController {
     }
 
     @PutMapping("/update/{id}")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> updateTariffario(@PathVariable Long id, @RequestBody TariffarioRequest updatedRequest) throws EntityNotFoundException {
-//        try {
+        try {
             TariffarioResponse tariffario = tariffarioService.updateTariffario(id, updatedRequest);
             return new ResponseEntity<>(tariffario, HttpStatus.OK);
-//        } catch (EntityNotFoundException e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/delete/{id}")
-    @Secured({"ADMIN"})
+    @Secured({"ADMIN", "MEDICO"})
     public ResponseEntity<?> deleteTariffario(@PathVariable Long id) {
         try {
             tariffarioService.deleteTariffarioById(id);

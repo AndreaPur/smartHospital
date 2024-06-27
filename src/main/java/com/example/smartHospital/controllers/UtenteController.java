@@ -5,8 +5,10 @@ import com.example.smartHospital.exceptions.EntityNotFoundException;
 import com.example.smartHospital.request.UtenteRequest;
 import com.example.smartHospital.response.MedicoResponse;
 import com.example.smartHospital.response.UtenteResponse;
+import com.example.smartHospital.response.VisitaResponse;
 import com.example.smartHospital.services.MedicoService;
 import com.example.smartHospital.services.UtenteService;
+import com.example.smartHospital.services.VisitaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ public class UtenteController {
     private UtenteService utenteService;
     @Autowired
     private MedicoService medicoService;
+    @Autowired
+    private VisitaService visitaService;
 
     @GetMapping("/get/{id}")
     @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
@@ -81,6 +85,17 @@ public class UtenteController {
         try {
             List<MedicoResponse> medici = medicoService.findByRoleAndSpecializzazione(specializzazione);
             return new ResponseEntity<>(medici, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{utenteId}/visite")
+    @Secured({"ADMIN", "MEDICO", "PAZIENTE"})
+    public ResponseEntity<?> getVisiteByUtenteId(@PathVariable Long utenteId) {
+        try {
+            List<VisitaResponse> visite = visitaService.getVisiteByUtenteId(utenteId);
+            return new ResponseEntity<>(visite, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
