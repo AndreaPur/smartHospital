@@ -39,6 +39,8 @@ public class Visita {
     private List<Prestazione> prestazioni;
     @Column(nullable = false)
     private double onorario;
+    @Column(nullable = false)
+    private boolean conclusa = false;
     @Column
     private String referto;
     @Column

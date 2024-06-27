@@ -52,15 +52,15 @@ public class TariffarioController {
 
     @PutMapping("/update/{id}")
     @Secured({"ADMIN"})
-    public ResponseEntity<?> updateTariffario(@PathVariable Long id, @RequestBody TariffarioRequest updatedRequest) {
-        try {
+    public ResponseEntity<?> updateTariffario(@PathVariable Long id, @RequestBody TariffarioRequest updatedRequest) throws EntityNotFoundException {
+//        try {
             TariffarioResponse tariffario = tariffarioService.updateTariffario(id, updatedRequest);
             return new ResponseEntity<>(tariffario, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+//        } catch (EntityNotFoundException e) {
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
     }
 
     @DeleteMapping("/delete/{id}")

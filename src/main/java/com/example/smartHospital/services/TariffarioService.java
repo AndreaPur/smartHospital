@@ -47,6 +47,8 @@ public class TariffarioService {
                 .prestazioni(prestazioni)
                 .medici(medici)
                 .build();
+        prestazioni.forEach(prestazione -> prestazione.setTariffario(tariffario));
+        medici.forEach(medico -> medico.setTariffario(tariffario));
 
         tariffarioRepository.saveAndFlush(tariffario);
         return convertToResponse(tariffario);
@@ -55,13 +57,15 @@ public class TariffarioService {
     public TariffarioResponse updateTariffario(Long id, TariffarioRequest updatedTariffarioRequest) throws EntityNotFoundException {
         Tariffario tariffario = tariffarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id, "Tariffario"));
-
         List<Prestazione> prestazioni = prestazioneRepository.findAllById(updatedTariffarioRequest.getIdPrestazioni());
         List<Medico> medici = medicoRepository.findAllById(updatedTariffarioRequest.getIdMedici());
-
         tariffario.setNome(updatedTariffarioRequest.getNome());
-        tariffario.setPrestazioni(prestazioni);
-        tariffario.setMedici(medici);
+        tariffario.getPrestazioni().clear();
+        tariffario.getPrestazioni().addAll(prestazioni);
+        tariffario.getMedici().clear();
+        tariffario.getMedici().addAll(medici);
+        prestazioni.forEach(prestazione -> prestazione.setTariffario(tariffario));
+        medici.forEach(medico -> medico.setTariffario(tariffario));
 
         Tariffario savedTariffario = tariffarioRepository.saveAndFlush(tariffario);
         return convertToResponse(savedTariffario);

@@ -28,5 +28,6 @@ public class VisitaResponse {
     private List<String> nomePrestazioni;
     private List<Double> costoPrestazioni;
     private double onorario;
+    private boolean conclusa;
 
 }

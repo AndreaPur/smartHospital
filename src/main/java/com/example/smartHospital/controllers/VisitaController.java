@@ -1,9 +1,6 @@
 package com.example.smartHospital.controllers;
 
-import com.example.smartHospital.exceptions.EntityNotFoundException;
-import com.example.smartHospital.exceptions.NonDisponibileException;
-import com.example.smartHospital.exceptions.PassatoException;
-import com.example.smartHospital.exceptions.SpecializzazioneException;
+import com.example.smartHospital.exceptions.*;
 import com.example.smartHospital.request.VisitaRequest;
 import com.example.smartHospital.response.GenericResponse;
 import com.example.smartHospital.response.VisitaResponse;
@@ -67,6 +64,8 @@ public class VisitaController {
             return new ResponseEntity<>(visita, HttpStatus.OK);
         } catch (PassatoException | NonDisponibileException | SpecializzazioneException | EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (VisitaConclusaException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -86,15 +85,29 @@ public class VisitaController {
     }
 
     @PostMapping("/{visitaId}/prestazioni/{prestazioneId}")
-    public ResponseEntity<?> aggiungiPrestazione(@PathVariable Long visitaId, @PathVariable Long prestazioneId) throws EntityNotFoundException {
-//        try {
+    public ResponseEntity<?> aggiungiPrestazione(@PathVariable Long visitaId, @PathVariable Long prestazioneId) throws EntityNotFoundException, VisitaConclusaException {
+        try {
             visitaService.aggiungiPrestazione(visitaId, prestazioneId);
             return new ResponseEntity<>("Prestazione aggiunta con successo", HttpStatus.ACCEPTED);
-//        } catch (EntityNotFoundException e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (VisitaConclusaException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{visitaId}/concludi")
+    public ResponseEntity<?> concludiVisita(@PathVariable Long visitaId) {
+        try {
+            GenericResponse response = visitaService.concludeVisita(visitaId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (VisitaConclusaException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
     }
 
     @PutMapping("/upload_referto/{id}")

@@ -6,6 +6,7 @@ import com.example.smartHospital.repositories.PrestazioneRepository;
 import com.example.smartHospital.repositories.UtenteRepository;
 import com.example.smartHospital.repositories.VisitaRepository;
 import com.example.smartHospital.request.VisitaRequest;
+import com.example.smartHospital.response.GenericResponse;
 import com.example.smartHospital.response.VisitaResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,12 +62,13 @@ public class VisitaService {
         }
     }
 
-    public VisitaResponse updateVisita(Long id, VisitaRequest updatedRequest) throws PassatoException, NonDisponibileException, SpecializzazioneException, EntityNotFoundException {
+    public VisitaResponse updateVisita(Long id, VisitaRequest updatedRequest) throws PassatoException, NonDisponibileException, SpecializzazioneException, EntityNotFoundException, VisitaConclusaException {
         if (updatedRequest.getOrario().isBefore(LocalDateTime.now())) {
             throw new PassatoException();
         }
         Visita visita = visitaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id, "Visita"));
+        if (visita.isConclusa()) { throw new VisitaConclusaException(); }
         Medico medico = (Medico) utenteRepository.findById(updatedRequest.getIdMedico())
                 .orElseThrow(() -> new EntityNotFoundException(updatedRequest.getIdMedico(), "Medico"));
         if (!medico.getSpecializzazione().equals(updatedRequest.getSpecializzazione())) {
@@ -86,20 +88,18 @@ public class VisitaService {
         visitaRepository.deleteById(id);
     }
 
-    public void aggiungiPrestazione(Long visitaId, Long prestazioneId) throws EntityNotFoundException {
+    public void aggiungiPrestazione(Long visitaId, Long prestazioneId) throws EntityNotFoundException, VisitaConclusaException {
         Visita visita = visitaRepository.findById(visitaId)
                 .orElseThrow(() -> new EntityNotFoundException(visitaId, "Visita"));
+        if (visita.isConclusa()) { throw new VisitaConclusaException(); }
         Prestazione prestazione = prestazioneRepository.findById(prestazioneId)
                 .orElseThrow(() -> new EntityNotFoundException(prestazioneId, "Prestazione"));
-
         if (prestazione.getTariffario() == null) {
             throw new EntityNotFoundException(prestazioneId, "Prestazione non associata a nessun tariffario");
         }
-
         if (!prestazione.getTariffario().getPrestazioni().contains(prestazione)) {
             throw new EntityNotFoundException(prestazioneId, "Prestazione non trovata nel tariffario");
         }
-
         visita.getPrestazioni().add(prestazione);
         double onorarioProvvisorio = calcolaOnorario(visita);
         visita.setOnorario(onorarioProvvisorio);
@@ -112,6 +112,16 @@ public class VisitaService {
                 .filter(prezzo -> prezzo != null)
                 .mapToDouble(Double::doubleValue)
                 .sum();
+    }
+
+    public GenericResponse concludeVisita(Long visitaId) throws EntityNotFoundException, VisitaConclusaException {
+        Visita visita = visitaRepository.findById(visitaId)
+                .orElseThrow(() -> new EntityNotFoundException(visitaId, "Visita"));
+        if (visita.isConclusa()) { throw new VisitaConclusaException(); }
+        visita.setConclusa(true);
+        visitaRepository.saveAndFlush(visita);
+        String message = "Il totale della visita è " + visita.getOnorario() + " euro.";
+        return new GenericResponse(message);
     }
 
     public void uploadReferto(Long id, String path) throws EntityNotFoundException {
@@ -150,6 +160,7 @@ public class VisitaService {
                         .filter(prezzo -> prezzo != null)
                         .collect(Collectors.toList()) : null)
                 .onorario(visita.getPrestazioni() != null && !visita.getPrestazioni().isEmpty() ? visita.getOnorario() : 0.0)
+                .conclusa(visita.isConclusa())
                 .build();
     }
 }
